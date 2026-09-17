@@ -22,6 +22,7 @@ export type Task = {
   criteria: string;
 };
 export type Evidence = {
+  fileIds?: string[];
   id: string;
   taskId: string;
   memberId: string;

@@ -1,3 +1,5 @@
+import { access, owner, apiError, AccessError } from '../../../lib/access';
+import { validateAttachments } from '../../../db/files';
 import { readProject, saveProject } from '../../../db/store';
 import { aiReady, aiStatus } from '../../../lib/ai';
 import {
@@ -6,7 +8,6 @@ import {
   day,
   log,
   replan,
-  seed,
   skillNames,
   type Evidence,
 } from '../../../lib/project';
@@ -32,10 +33,13 @@ const date = (x: unknown) => {
 };
 export async function GET() {
   try {
+    const identity = await access();
     const { project, revision } = await readProject();
     return Response.json(
       {
         project,
+        currentUserId: identity.user.userId,
+        role: identity.role,
         revision,
         analysis: analyze(project),
         contributions: contributions(project),
@@ -44,11 +48,8 @@ export async function GET() {
       },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch {
-    return Response.json(
-      { error: '專案資料尚未準備完成，請稍後重試。' },
-      { status: 503 },
-    );
+  } catch (e) {
+    return apiError(e);
   }
 }
 export async function POST(request: Request) {
@@ -60,6 +61,16 @@ export async function POST(request: Request) {
     if (!input || typeof input !== 'object' || Array.isArray(input))
       throw Error('請提供有效操作物件');
     const b = input as Record<string, unknown>;
+    const identity = await access();
+    if (['project', 'task', 'auto', 'replan'].includes(String(b.action)))
+      owner(identity.role);
+    if (
+      ['report', 'evidence', 'review'].includes(String(b.action)) &&
+      b.memberId !== identity.user.userId
+    )
+      throw new AccessError('只能以自己的身分提交或驗收');
+    if (b.action === 'member' && b.memberId !== identity.user.userId)
+      owner(identity.role);
     const stored = await readProject();
     let p = stored.project;
     if (b.revision !== stored.revision)
@@ -162,6 +173,7 @@ export async function POST(request: Request) {
           throw Error('成果連結需為 http 或 https');
         const e: Evidence = {
           id: crypto.randomUUID(),
+          fileIds: await validateAttachments(b.fileIds, t.id, identity),
           taskId: t.id,
           memberId: m.id,
           kind,
@@ -257,15 +269,14 @@ export async function POST(request: Request) {
         if (p.auto) replan(p);
         break;
       case 'reset':
-        if (b.confirm !== 'RESET') throw Error('需要確認');
-        p = seed();
-        break;
+        throw new AccessError('真實專案不提供示範重設', 400);
       default:
         throw Error('不支援的操作');
     }
     await saveProject(p, stored.revision);
     return Response.json({ ok: true });
   } catch (error) {
+    if (error instanceof AccessError) return apiError(error);
     return Response.json(
       {
         error: error instanceof Error ? error.message : '操作失敗，請稍後重試',

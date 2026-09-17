@@ -1,4 +1,5 @@
 'use client';
+import { useProjectFetch } from './project-context';
 import { useState } from 'react';
 import { Bot, Check, RefreshCw, ShieldCheck, Loader2 } from 'lucide-react';
 import type { Project } from '../lib/project';
@@ -46,6 +47,7 @@ export function AgentPanel({
   status: Status;
   onRefresh: () => Promise<unknown>;
 }) {
+  const apiFetch = useProjectFetch();
   const [kind, setKind] = useState<AgentKind>('plan');
   const [note, setNote] = useState('');
   const [taskId, setTaskId] = useState(
@@ -59,7 +61,7 @@ export function AgentPanel({
   const [runs, setRuns] = useState<Run[]>([]);
   const [selected, setSelected] = useState<Run | null>(null);
   async function refreshRuns() {
-    const r = await fetch('/api/agent', {
+    const r = await apiFetch('/api/agent', {
       headers: { Authorization: 'Bearer ' + token },
       cache: 'no-store',
     });
@@ -72,7 +74,7 @@ export function AgentPanel({
     setBusy(true);
     setError('');
     try {
-      const response = await fetch('/api/agent', {
+      const response = await apiFetch('/api/agent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

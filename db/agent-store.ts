@@ -1,3 +1,4 @@
+import { access } from '../lib/access';
 import { env } from 'cloudflare:workers';
 import type { AgentKind, AgentResult } from '../lib/agent-contracts';
 import type { AgentInput } from '../lib/agent-tools';
@@ -46,27 +47,32 @@ const decode = (r: Row): Run => ({
   updatedAt: r.updated_at,
 });
 export async function getRun(id: string) {
-  const r = await env.DB.prepare('SELECT * FROM agent_runs WHERE id = ?')
-    .bind(id)
+  const r = await env.DB.prepare(
+    'SELECT * FROM agent_runs WHERE id = ? AND project_id = ?',
+  )
+    .bind(id, (await access()).projectId)
     .first<Row>();
   return r ? decode(r) : null;
 }
 export async function listRuns() {
   const r = await env.DB.prepare(
-    'SELECT * FROM agent_runs ORDER BY created_at DESC LIMIT 20',
-  ).all<Row>();
+    'SELECT * FROM agent_runs WHERE project_id = ? ORDER BY created_at DESC LIMIT 20',
+  )
+    .bind((await access()).projectId)
+    .all<Row>();
   return r.results.map(decode);
 }
 export async function reserveRun(run: Run, limit: number) {
   const start = run.createdAt.slice(0, 10) + 'T00:00:00.000Z';
   const cutoff = new Date(Date.now() - 90000).toISOString();
   const r =
-    await env.DB.prepare(`INSERT OR IGNORE INTO agent_runs (id, kind, base_revision, status, input, result, message, model, created_at, updated_at)
- SELECT ?, ?, ?, 'running', ?, NULL, '', ?, ?, ?
+    await env.DB.prepare(`INSERT OR IGNORE INTO agent_runs (id, project_id, kind, base_revision, status, input, result, message, model, created_at, updated_at)
+ SELECT ?, ?, ?, ?, 'running', ?, NULL, '', ?, ?, ?
  WHERE (SELECT COUNT(*) FROM agent_runs WHERE created_at >= ?) < ?
  AND NOT EXISTS (SELECT 1 FROM agent_runs WHERE status = 'running' AND created_at > ?)`)
       .bind(
         run.id,
+        (await access()).projectId,
         run.kind,
         run.baseRevision,
         JSON.stringify(run.input),
@@ -91,7 +97,7 @@ export async function finishRun(
   message = '',
 ) {
   await env.DB.prepare(
-    'UPDATE agent_runs SET status = ?, result = ?, message = ?, updated_at = ? WHERE id = ?',
+    'UPDATE agent_runs SET status = ?, result = ?, message = ?, updated_at = ? WHERE id = ? AND project_id = ?',
   )
     .bind(
       status,
@@ -99,6 +105,7 @@ export async function finishRun(
       message,
       new Date().toISOString(),
       id,
+      (await access()).projectId,
     )
     .run();
   return (await getRun(id))!;
