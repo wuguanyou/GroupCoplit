@@ -1363,3 +1363,85 @@ legend {
   line-height: 1.8;
   margin: 9px 0;
 }
+.agent-form label {
+  display: grid;
+  gap: 9px;
+  font-size: 14px;
+  color: #526b74;
+  margin: 20px 0;
+}
+.agent-form input,
+.agent-form textarea,
+.agent-form select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dce5e8;
+  border-radius: 7px;
+  background: white;
+  color: #334d58;
+  font: inherit;
+}
+.agent-form textarea {
+  min-height: 125px;
+  resize: vertical;
+}
+.agent-form .btn {
+  margin-top: 22px;
+}
+.agent-form p,
+.agent-result p {
+  font-size: 14px;
+}
+.agent-form .agent-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  line-height: 1.6;
+}
+.agent-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: #197762;
+}
+.agent-result .empty svg {
+  margin: 10px auto 22px;
+  color: #528776;
+}
+.agent-result li {
+  font-size: 14px;
+  color: #526b74;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.agent-task {
+  padding: 16px 0;
+  border-bottom: 1px solid #e9eef2;
+}
+.agent-task strong {
+  font-size: 15px;
+}
+.agent-result h3 {
+  font-size: 17px;
+  line-height: 1.7;
+  margin: 20px 0;
+}
+.agent-run {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  background: white;
+  border: 0;
+  border-top: 1px solid #e9eef2;
+  text-align: left;
+  padding: 17px 0;
+  font-size: 14px;
+  color: #526b74;
+}
+.agent-run span:last-child {
+  white-space: nowrap;
+  color: #278863;
+}
+.agent-workspace .notice ul {
+  padding-left: 20px;
+}

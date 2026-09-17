@@ -1,5 +1,5 @@
 import { readProject, saveProject } from '../../../db/store';
-import { aiReady } from '../../../lib/ai';
+import { aiReady, aiStatus } from '../../../lib/ai';
 import {
   analyze,
   contributions,
@@ -40,6 +40,7 @@ export async function GET() {
         analysis: analyze(project),
         contributions: contributions(project),
         aiConnected: aiReady(),
+        aiStatus: aiStatus(),
       },
       { headers: { 'Cache-Control': 'no-store' } },
     );

@@ -41,6 +41,7 @@ export type Event = {
   kind: 'plan' | 'report' | 'evidence' | 'risk';
 };
 export type Project = {
+  appliedAgentRuns?: string[];
   name: string;
   requirements: string;
   deadline: string;
@@ -154,24 +155,22 @@ export function seed(): Project {
     deadline: addDays(today, 14),
     members,
     tasks,
-    evidence: tasks
-      .slice(0, 3)
-      .map((t, i) => ({
-        id: 'e' + i,
-        taskId: t.id,
-        memberId: t.owner,
-        kind: 'delivery',
-        hours: t.hours,
-        note: [
-          '完成 5 位學生需求訪談與問題分類（示範紀錄）',
-          '確認核心功能與驗收條件（示範紀錄）',
-          '完成主要頁面 Wireframe（示範紀錄）',
-        ][i],
-        url: '',
-        status: 'accepted',
-        reviewer: i === 0 ? 'm2' : 'm1',
-        createdAt: new Date().toISOString(),
-      })),
+    evidence: tasks.slice(0, 3).map((t, i) => ({
+      id: 'e' + i,
+      taskId: t.id,
+      memberId: t.owner,
+      kind: 'delivery',
+      hours: t.hours,
+      note: [
+        '完成 5 位學生需求訪談與問題分類（示範紀錄）',
+        '確認核心功能與驗收條件（示範紀錄）',
+        '完成主要頁面 Wireframe（示範紀錄）',
+      ][i],
+      url: '',
+      status: 'accepted',
+      reviewer: i === 0 ? 'm2' : 'm1',
+      createdAt: new Date().toISOString(),
+    })),
     events: [],
     auto: true,
     lastCheck: new Date().toISOString(),

@@ -44,6 +44,6 @@ test('missing AI credentials are reported instead of a fabricated AI answer', as
   if (!status.aiConnected) {
     const r = await fetch(base + '/api/analysis', { method: 'POST' });
     assert.equal(r.status, 503);
-    assert.match((await r.json()).error, /尚未設定/);
+    assert.match((await r.json()).error, /尚未.*設定/);
   }
 });

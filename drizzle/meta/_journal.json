@@ -8,6 +8,13 @@
       "when": 1788936242976,
       "tag": "0000_greedy_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789657186308,
+      "tag": "0001_narrow_sphinx",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
   GitBranch,
@@ -36,10 +37,18 @@ type Snapshot = {
   analysis: ReturnType<typeof analyze>;
   contributions: ReturnType<typeof contributions>;
   aiConnected: boolean;
+  aiStatus: {
+    configured: boolean;
+    missing: string[];
+    model: string;
+    protocol: string;
+    dailyLimit: number;
+  };
 };
 type Form = Record<string, any>;
 const tabs = [
   ['overview', '專案總覽', LayoutDashboard],
+  ['agent', 'AI 代理組長', Bot],
   ['tasks', '任務與依賴', GitBranch],
   ['team', '團隊與分工', Users],
   ['contribution', '貢獻分析', ChartNoAxesCombined],
@@ -107,13 +116,13 @@ export default function Home() {
     [data, load],
   );
   useEffect(() => {
-    if (!data) return;
+    if (!data || view === 'agent') return;
     const id = setInterval(() => {
       if (document.visibilityState === 'visible')
         perform('check', {}, true).catch(() => {});
     }, 60000);
     return () => clearInterval(id);
-  }, [data, perform]);
+  }, [data, perform, view]);
   useEffect(() => {
     const context = (document as any).modelContext;
     if (!context?.registerTool || !data) return;
@@ -200,24 +209,6 @@ export default function Home() {
       {m?.name.slice(0, 1) ?? '?'}
     </span>
   );
-  const requestAI = async () => {
-    setBusy(true);
-    setError('');
-    try {
-      const r = await fetch('/api/analysis', { method: 'POST' });
-      const j = (await r.json()) as Snapshot & {
-        error?: string;
-        analysis: any;
-      };
-      if (!r.ok) throw Error(j.error);
-      setAIResult(j.analysis);
-      setModal('analysis');
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '分析失敗');
-    } finally {
-      setBusy(false);
-    }
-  };
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     run(modal, form);
@@ -347,26 +338,30 @@ export default function Home() {
             <div className="heading">
               <div>
                 <p className="eyebrow">
-                  {view === 'overview'
-                    ? 'PROJECT OVERVIEW'
-                    : view === 'tasks'
-                      ? 'TASKS & DEPENDENCIES'
-                      : view === 'team'
-                        ? 'TEAM CAPACITY'
-                        : view === 'contribution'
-                          ? 'CONTRIBUTION INSIGHTS'
-                          : 'AGENT ACTIVITY'}
+                  {view === 'agent'
+                    ? 'AI 代理工作台'
+                    : view === 'overview'
+                      ? 'PROJECT OVERVIEW'
+                      : view === 'tasks'
+                        ? 'TASKS & DEPENDENCIES'
+                        : view === 'team'
+                          ? 'TEAM CAPACITY'
+                          : view === 'contribution'
+                            ? 'CONTRIBUTION INSIGHTS'
+                            : 'AGENT ACTIVITY'}
                 </p>
                 <h1>
-                  {view === 'overview'
-                    ? '讓團隊專注，把協調交給我。'
-                    : view === 'tasks'
-                      ? '每一步，都有清楚的下一步。'
-                      : view === 'team'
-                        ? '合適的人，做合適的事。'
-                        : view === 'contribution'
-                          ? '每一份付出，都有跡可循。'
-                          : '看見每一次協調的來由。'}
+                  {view === 'agent'
+                    ? 'AI 代理工作台'
+                    : view === 'overview'
+                      ? '讓團隊專注，把協調交給我。'
+                      : view === 'tasks'
+                        ? '每一步，都有清楚的下一步。'
+                        : view === 'team'
+                          ? '合適的人，做合適的事。'
+                          : view === 'contribution'
+                            ? '每一份付出，都有跡可循。'
+                            : '看見每一次協調的來由。'}
                 </h1>
                 <p>
                   {p!.name} <span className="separator">/</span>{' '}
@@ -395,6 +390,14 @@ export default function Home() {
                 </button>
               </div>
             </div>
+            {view === 'agent' && (
+              <AgentPanel
+                project={data.project}
+                revision={data.revision}
+                status={data.aiStatus}
+                onRefresh={load}
+              />
+            )}
             {view === 'overview' && (
               <>
                 <section className="pilot">
@@ -425,13 +428,7 @@ export default function Home() {
                     <button
                       className="ai-link"
                       disabled={busy}
-                      onClick={() => {
-                        if (data.aiConnected) {
-                          void requestAI();
-                        } else {
-                          open('analysis');
-                        }
-                      }}
+                      onClick={() => setView('agent')}
                     >
                       <Bot size={15} />
                       AI 深入分析
@@ -455,7 +452,7 @@ export default function Home() {
                   <span>
                     <span className="dot" />
                     {data.aiConnected
-                      ? '規則排程 + AI 分析可用'
+                      ? 'AI 設定已就緒 · 實際連線待驗證'
                       : '規則排程運作中 · 尚未接通語言模型'}
                   </span>
                   <span>頁面開啟時每分鐘檢查 · 回報後即時更新</span>
@@ -1213,7 +1210,8 @@ export default function Home() {
                       </label>
                     </div>
                     <p>
-                      目前為規則模式，請填寫工時與日期；文字回報會留存供交接參考。
+                      此表單使用明確工時與日期；也可到「AI
+                      代理組長」解析自然語言回報。
                     </p>
                   </>
                 )}
@@ -1506,7 +1504,8 @@ export default function Home() {
                       />
                     </label>
                     <p>
-                      要求會保存至專案；目前可手動新增任務，自由文字自動拆解需接通語言模型。
+                      要求會保存至專案；可到「AI
+                      代理組長」拆解需求，確認後新增任務。
                     </p>
                   </>
                 )}
