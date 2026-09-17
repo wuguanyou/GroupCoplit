@@ -54,7 +54,7 @@ export function createAgentService(deps: AgentDependencies) {
     rebalance:
       '提出有必要的任務轉交，考慮技能、偏好、可開始日期、每日容量及前後依賴；不動已完成或待驗收任務。無改善可回傳空assignments。程式將驗證轉交後排程且每次保留半天緩衝。',
     analysis:
-      '分析風險、協調建議及貢獻，數據必須使用計算所得的 metrics，不另外創造貢獻分數或判斷誰是雷組員。指出自報和已驗收證據的區別。',
+      '分析風險、協調建議及貢獻，全部敘述使用繁體中文。數據必須使用計算所得的 metrics，不另外創造貢獻分數或判斷誰是雷組員。dailyHours 是每日可投入容量，不是已完成或已登記工時；tasks.hours 及 contributions.load 是剩餘工作量，不能直接與單日容量比較就判定超載。schedule.duration 及 slots.start/end 單位是天，不是小時；依 schedule.risks/warnings、finishDate 與 deadline 判斷延期，不能把尚未完成或沒有證據說成已逾期。contributions.hours 只代表成果紀錄申報工時，可能包含未驗收或遭退回的紀錄；accepted/pending 是筆數，score/share 才是已驗收貢獻計算值。證據為空只能說尚無可驗證貢獻，不能推測已投入工時。指出自報和已驗收證據的區別；證據不足時明確說未知。',
   };
   async function applyRun(id: string) {
     const run = await getRun(id);
