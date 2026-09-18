@@ -8,7 +8,7 @@
 - 不再接受 `oai-authenticated-user-*` 標頭作為登入依據。
 - 移除 Sites 開發套件、登入助手與 hosting.json。舊站仍在 main 分支與既有部署上。
 - 真正的 OAuth 登入仍需你帳號下的 Google / GitHub Client ID 和 Client Secret。
-- 新站尚未部署；Cloudflare 授權已完成，wrangler.jsonc 已填入使用者帳號建立的 D1 ID，且資料表遷移已套用。R2 仍需使用者在 Cloudflare 後台啟用。
+- 新站尚未部署；Cloudflare 授權已完成，wrangler.jsonc 已填入使用者帳號建立的 D1 ID，且資料表遷移已套用。R2 已啟用，grouppilot-files 儲存空間已建立（Standard）。Workers 子網域 wuguanyou36.workers.dev 已建立。
 - 不自動合併不同提供者的同信箱帳號。請先固定使用同一種登入方式；跨提供者綁定需另做登入後的驗證流程。
 
 ## 一、準備自己的 Cloudflare
@@ -24,13 +24,13 @@
 Google：在 Google Cloud Console 建立 Web application OAuth client。設定品牌與同意畫面；若保持測試模式，將要試用的帳號加入測試使用者。
 
 - 本機回呼：`http://localhost:3000/api/auth/callback/google`
-- 正式回呼：`https://你的正式網址/api/auth/callback/google`
+- 正式回呼：`https://grouppilot.wuguanyou36.workers.dev/api/auth/callback/google`
 - [Google 設定說明](https://better-auth.com/docs/authentication/google)
 
 GitHub：在 Developer settings 建立 OAuth App。本機與正式環境建議分別建立。
 
 - 本機回呼：`http://localhost:3000/api/auth/callback/github`
-- 正式回呼：`https://你的正式網址/api/auth/callback/github`
+- 正式回呼：`https://grouppilot.wuguanyou36.workers.dev/api/auth/callback/github`
 - [GitHub 設定說明](https://better-auth.com/docs/authentication/github)
 
 Client Secret 請填入本機環境檔或 Cloudflare Secrets，不要貼到聊天或提交 Git。
