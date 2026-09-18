@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "grouppilot",
-      "database_id": "00000000-0000-4000-8000-000000000000",
+      "database_id": "e0cff961-69f4-4dcf-8834-5ae18a0b775a",
       "migrations_dir": "drizzle"
     }
   ],
@@ -19,5 +19,6 @@
       "binding": "BUCKET",
       "bucket_name": "grouppilot-files"
     }
-  ]
+  ],
+  "account_id": "3e5ac9197d1a0167db15fc153912a17f"
 }

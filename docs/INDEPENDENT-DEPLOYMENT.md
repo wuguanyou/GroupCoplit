@@ -8,14 +8,14 @@
 - 不再接受 `oai-authenticated-user-*` 標頭作為登入依據。
 - 移除 Sites 開發套件、登入助手與 hosting.json。舊站仍在 main 分支與既有部署上。
 - 真正的 OAuth 登入仍需你帳號下的 Google / GitHub Client ID 和 Client Secret。
-- 新站尚未部署；wrangler.jsonc 的 D1 ID 是本機用占位值，部署檢查會拒絕它。
+- 新站尚未部署；Cloudflare 授權已完成，wrangler.jsonc 已填入使用者帳號建立的 D1 ID，且資料表遷移已套用。R2 仍需使用者在 Cloudflare 後台啟用。
 - 不自動合併不同提供者的同信箱帳號。請先固定使用同一種登入方式；跨提供者綁定需另做登入後的驗證流程。
 
 ## 一、準備自己的 Cloudflare
 
 1. 登入你自己的 Cloudflare 帳號，開啟 Workers 與 D1 / R2。
 2. 在這個分支執行 `pnpm exec wrangler login`。
-3. 執行 `pnpm exec wrangler d1 create grouppilot`，將回傳的 database_id 填進 wrangler.jsonc。
+3. 若尚未建立資料庫，執行 `pnpm exec wrangler d1 create grouppilot`，將回傳的 database_id 填進 wrangler.jsonc。
 4. 執行 `pnpm exec wrangler r2 bucket create grouppilot-files`。
 5. 選定 Workers 子網域；可先用 Cloudflare 提供的 workers.dev 網址，之後改自己的網域。實際網址由 Cloudflare 帳號決定，不要直接照抄範例網址。
 
