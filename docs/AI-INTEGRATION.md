@@ -1,3 +1,5 @@
+> 獨立部署分支：登入已改為 Google / GitHub，網站與 D1 / R2 由使用者自己的 Cloudflare 帳號部署。下方 Sites 設定僅描述 main 分支的舊站；新站設定以 [獨立部署指南](INDEPENDENT-DEPLOYMENT.md) 為準。
+
 # GroupPilot AI 接入架構
 
 目前提供四條完整的模型工作流程：新增需求拆解、自然語言進度解析、重新分工建議、風險與貢獻分析。Groq 接入已完成虛構資料的真實呼叫驗證。AMD 仍待端點與授權；沒有設定就回傳 unavailable，不生成假資料。

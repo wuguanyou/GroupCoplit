@@ -1,6 +1,6 @@
 import { cookies, headers } from 'next/headers';
 import { env } from 'cloudflare:workers';
-import { getChatGPTUser } from '../app/chatgpt-auth';
+import { getAppUser } from './auth';
 export class AccessError extends Error {
   constructor(
     message: string,
@@ -10,7 +10,7 @@ export class AccessError extends Error {
   }
 }
 export async function requireUser() {
-  const user = await getChatGPTUser();
+  const user = await getAppUser();
   if (!user) throw new AccessError('請先登入', 401);
   return user;
 }

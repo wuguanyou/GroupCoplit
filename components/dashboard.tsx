@@ -6,6 +6,7 @@ import {
   AttachmentPicker,
   EvidenceAttachments,
 } from './file-center';
+import { SignOut } from './social-login';
 import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
@@ -332,13 +333,7 @@ export default function Dashboard({
             <button className="btn" onClick={onWorkspace}>
               切換專案
             </button>
-            <a
-              className="btn"
-              href="/signout-with-chatgpt?return_to=%2F"
-              target="_top"
-            >
-              登出
-            </a>
+            <SignOut />
             <span className="avatar small">
               {person(data?.currentUserId ?? '')?.name.slice(0, 1) ?? '我'}
             </span>

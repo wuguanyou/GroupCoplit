@@ -9,13 +9,14 @@ import {
   Plus,
 } from 'lucide-react';
 import { ProjectContext } from './project-context';
+import { SocialLogin, SignOut } from './social-login';
 import Dashboard from './dashboard';
 type Session = {
   user: { id: string; name: string } | null;
   projects: { id: string; name: string; role: string }[];
   selected?: string | null;
 };
-export function WorkspaceGate({ signInPath }: { signInPath: string }) {
+export function WorkspaceGate() {
   const [session, setSession] = useState<Session | null>(null),
     [chooser, setChooser] = useState(false),
     [error, setError] = useState(''),
@@ -113,15 +114,7 @@ export function WorkspaceGate({ signInPath }: { signInPath: string }) {
             </span>
             <p className="eyebrow">歡迎回來</p>
             <h2>進入你的團隊工作空間</h2>
-            <p>使用 ChatGPT 帳號登入，建立自己的專案與檔案資料庫。</p>
-            <a
-              className="btn primary login-link"
-              href={signInPath}
-              target="_top"
-            >
-              使用 ChatGPT 登入 <ArrowRight size={18} />
-            </a>
-            <small>只有加入專案的成員，才能查看其中的資料與檔案。</small>
+            <SocialLogin />
           </div>
         ) : (
           <div className="workspace-setup">
@@ -231,13 +224,9 @@ export function WorkspaceGate({ signInPath }: { signInPath: string }) {
                     : '加入專案'}
               </button>
             </form>
-            <a
-              className="signout"
-              href="/signout-with-chatgpt?return_to=%2F"
-              target="_top"
-            >
-              登出
-            </a>
+            <div className="signout">
+              <SignOut />
+            </div>
           </div>
         )}
       </section>

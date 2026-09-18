@@ -1791,3 +1791,46 @@ legend {
     grid-template-columns: 1fr;
   }
 }
+
+.social-login {
+  display: grid;
+  gap: 14px;
+}
+.social-button {
+  display: flex;
+  gap: 14px;
+  min-height: 54px;
+  width: 100%;
+  background: #fff;
+  color: #20303e;
+  border: 1px solid #ccd8df;
+  justify-content: flex-start;
+}
+.social-button span:nth-child(2) {
+  flex: 1;
+  text-align: left;
+}
+.social-button.github {
+  background: #202a35;
+  color: #fff;
+  border-color: #202a35;
+}
+.social-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.google-letter {
+  font-family: Arial, sans-serif;
+  font-size: 23px;
+  font-weight: bold;
+  color: #4285f4;
+}
+.social-login small {
+  margin-top: 10px;
+}
+.auth-unavailable {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #f2f5f7;
+  font-size: 14px;
+}

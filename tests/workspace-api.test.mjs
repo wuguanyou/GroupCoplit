@@ -1,13 +1,18 @@
 import test from 'node:test';
+import { testSession } from './local-session.mjs';
 import assert from 'node:assert/strict';
-const base = process.env.TEST_BASE_URL ?? 'http://localhost:8787';
-if (!['localhost','127.0.0.1'].includes(new URL(base).hostname)) throw Error('Synthetic identity tests are local-only');
+const base = process.env.TEST_BASE_URL ?? 'http://localhost:3000';
+if (!['localhost', '127.0.0.1'].includes(new URL(base).hostname))
+  throw Error('Synthetic identity tests are local-only');
 const id = crypto.randomUUID();
 const users = {
   a: 'synthetic-a-' + id,
   b: 'synthetic-b-' + id,
   c: 'synthetic-c-' + id,
 };
+const authCookies = Object.fromEntries(
+  Object.entries(users).map(([k, id]) => [k, testSession(id)]),
+);
 let projectId, otherId, taskId, fileId, referenceId, invite, evidenceId;
 async function call(
   path,
@@ -15,8 +20,7 @@ async function call(
 ) {
   const headers = {};
   if (user) {
-    headers['oai-authenticated-user-id'] = users[user];
-    headers['oai-authenticated-user-email'] = user + '@example.test';
+    headers.Cookie = authCookies[user];
   }
   if (project) headers['x-project-id'] = project;
   if (body) headers['Content-Type'] = 'application/json';
@@ -121,8 +125,7 @@ test('R2 upload and download preserve bytes, reject invalid files and cross-proj
     else referenceId = j.file.id;
   }
   const headers = {
-    'oai-authenticated-user-id': users.b,
-    'oai-authenticated-user-email': 'b@example.test',
+    Cookie: authCookies.b,
     'x-project-id': projectId,
   };
   const downloaded = await fetch(base + '/api/files?id=' + fileId, { headers });

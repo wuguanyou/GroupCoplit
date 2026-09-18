@@ -1,6 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { cookies } from 'next/headers';
-import { getChatGPTUser } from '../../chatgpt-auth';
+import { getAppUser } from '../../../lib/auth';
 import {
   access,
   requireUser,
@@ -13,7 +13,7 @@ import { day, log, type Project } from '../../../lib/project';
 import { text, validDate, object } from '../../../lib/agent-contracts';
 export async function GET() {
   try {
-    const user = await getChatGPTUser();
+    const user = await getAppUser();
     if (!user)
       return Response.json(
         { user: null, projects: [] },
