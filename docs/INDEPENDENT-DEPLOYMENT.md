@@ -7,8 +7,9 @@
 - 完成 Google / GitHub OAuth 接口、Cookie 工作階段、登出、來源檢查及原專案權限串接。
 - 不再接受 `oai-authenticated-user-*` 標頭作為登入依據。
 - 移除 Sites 開發套件、登入助手與 hosting.json。舊站仍在 main 分支與既有部署上。
-- 真正的 OAuth 登入仍需你帳號下的 Google / GitHub Client ID 和 Client Secret。
-- 新站尚未部署；Cloudflare 授權已完成，wrangler.jsonc 已填入使用者帳號建立的 D1 ID，且資料表遷移已套用。R2 已啟用，grouppilot-files 儲存空間已建立（Standard）。Workers 子網域 wuguanyou36.workers.dev 已建立。
+- Google / GitHub 憑證已設定為 Cloudflare Secrets；正式 API 已驗證可產生兩個提供者的授權網址、正確回呼網址與 state Cookie。完整帳號登入及回呼仍待使用者操作驗證。
+- 新站已於 2026-09-19 部署至 https://grouppilot.wuguanyou36.workers.dev 。版本 ID：98e044a9-c3d2-4e2f-8956-b1fdd942bd5b。D1 遷移已套用，R2 grouppilot-files（Standard）已綁定。
+- 本次驗證：正式建置、TypeScript 檢查、20 項純邏輯測試通過；線上首頁與登入設定 API 回傳 200，未登入讀取檔案回傳 401。尚未以真人登入驗證完整專案、檔案及 AI 操作。
 - 不自動合併不同提供者的同信箱帳號。請先固定使用同一種登入方式；跨提供者綁定需另做登入後的驗證流程。
 
 ## 一、準備自己的 Cloudflare
