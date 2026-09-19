@@ -1,6 +1,6 @@
 'use client';
 import { useProjectFetch, useProjectId } from './project-context';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useId } from 'react';
 import { Upload, Download, FileText, FolderOpen } from 'lucide-react';
 import type { Project } from '../lib/project';
 type Item = {
@@ -31,27 +31,41 @@ export function UploadFile({
   const apiFetch = useProjectFetch(),
     projectId = useProjectId();
   const [busy, setBusy] = useState(false),
-    [error, setError] = useState('');
+    [error, setError] = useState(''),
+    [status, setStatus] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hintId = useId();
+  const needsTask = category === 'submission' && !taskId;
   return (
-    <div className="upload-box">
-      <Upload size={23} />
-      <b>{busy ? '檔案上傳中…' : '選擇檔案上傳'}</b>
-      <span>PDF、Office、文字、圖片、ZIP · 每檔上限 10 MB</span>
+    <div className="upload-box" aria-busy={busy}>
+      <div className="upload-icon"><Upload size={23} aria-hidden="true" /></div>
+      <b>{busy ? '正在上傳檔案' : '上傳團隊檔案'}</b>
+      <p className="upload-formats" id={hintId}>支援 PDF、Office、文字、圖片與 ZIP<br />每次選擇一個檔案，上限 10 MB</p>
+      <button type="button" className="btn primary upload-button" disabled={busy || needsTask} aria-describedby={hintId} onClick={() => inputRef.current?.click()}>
+        <Upload size={16} aria-hidden="true" />{busy ? '上傳中…' : '選擇檔案並上傳'}
+      </button>
+      {needsTask && <p className="upload-status">請先選擇所屬任務，再上傳交付檔案。</p>}
+      <p className="upload-status" role="status">{status}</p>
       <input
+        ref={inputRef}
+        hidden
         aria-label="選擇上傳檔案"
         type="file"
         accept={types}
-        disabled={busy || (category === 'submission' && !taskId)}
+        disabled={busy || needsTask}
         onChange={async (e) => {
           const input = e.currentTarget,
             f = input.files?.[0];
           if (!f) return;
+          setStatus('');
           if (f.size > 10 * 1024 * 1024) {
             setError('每個檔案上限 10 MB');
+            input.value = '';
             return;
           }
           setBusy(true);
           setError('');
+          setStatus('正在上傳：' + f.name);
           try {
             const body = new FormData();
             body.set('file', f);
@@ -61,10 +75,12 @@ export function UploadFile({
             const j: any = await r.json();
             if (!r.ok) throw Error(j.error);
             onDone(j.file);
-            input.value = '';
+            setStatus('已上傳：' + f.name);
           } catch (e) {
+            setStatus('');
             setError((e as Error).message);
           } finally {
+            input.value = '';
             setBusy(false);
           }
         }}
@@ -256,10 +272,10 @@ export function FileCenter({
         )}
       </div>
       <UploadFile category={category} taskId={taskId} onDone={() => load()} />
-      <p className="file-help">
-        上傳後會保存原始檔案。目前 AI
-        依「專案設定」中的文字要求分析，尚不自動解析附件內容。交付檔案需另按「提交驗收」才會列入成果紀錄。
-      </p>
+      <div className="file-help">
+        <p><strong>檔案保存</strong>上傳後會保存原始檔案；交付成果需另按「提交驗收」。</p>
+        <p><strong>AI 分析範圍</strong>目前依「專案設定」的文字要求分析，尚不自動解析附件內容。</p>
+      </div>
       {error && (
         <p className="error" role="alert">
           {error}

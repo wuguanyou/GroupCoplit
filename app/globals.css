@@ -1652,13 +1652,48 @@ legend {
   text-align: center;
   overflow: hidden;
 }
-.upload-box span {
+.upload-box .upload-formats {
+  margin: 0;
   font-size: 14px;
+  line-height: 1.8;
   color: #687e85;
 }
-.upload-box input {
+.upload-box input[hidden] {
+  display: none;
+}
+.upload-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #e3f1eb;
+  color: #24634f;
+}
+.upload-box .upload-button {
+  margin-top: 6px;
+  min-height: 44px;
   max-width: 100%;
-  font-size: 14px;
+  white-space: normal;
+}
+.upload-button:focus-visible {
+  outline: 3px solid #468c76;
+  outline-offset: 4px;
+}
+.upload-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.upload-status {
+  margin: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #365c50;
+}
+.upload-status:empty {
+  display: none;
 }
 .file-grid {
   display: grid;
@@ -1696,9 +1731,25 @@ legend {
   color: #6a7b89;
 }
 .file-help {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #f7f9fb;
   font-size: 14px;
   line-height: 1.8;
   color: #6a7b89;
+}
+.file-help p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.file-help p + p {
+  margin-top: 6px;
+}
+.file-help strong {
+  display: inline-block;
+  margin-right: 10px;
+  color: #3e5363;
 }
 .file-error {
   color: #ad3434;
