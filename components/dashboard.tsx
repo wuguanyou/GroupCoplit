@@ -7,6 +7,7 @@ import {
   EvidenceAttachments,
 } from './file-center';
 import { SignOut } from './social-login';
+import { LearningReport } from './learning-report';
 import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
@@ -878,6 +879,7 @@ export default function Dashboard({
             )}
             {view === 'contribution' && (
               <>
+                <LearningReport project={data.project} />
                 <div className="notice">
                   <FileCheck size={22} />
                   <div>
