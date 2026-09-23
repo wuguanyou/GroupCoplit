@@ -8,6 +8,7 @@ import {
 } from './file-center';
 import { SignOut } from './social-login';
 import { LearningReport } from './learning-report';
+import { ProjectGantt } from './project-gantt';
 import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
@@ -674,6 +675,7 @@ export default function Dashboard({
             )}
             {view === 'tasks' && (
               <>
+                <ProjectGantt project={data.project} />
                 <div className="toolbar">
                   <div className="filters">
                     {[
@@ -1132,7 +1134,7 @@ export default function Dashboard({
                 <span className="muted"> / 每個團隊，都值得被好好協調。</span>
               </span>
               <span>
-                最近檢查{' '}
+                背景巡檢：{p!.backgroundCheckedAt ? new Date(p!.backgroundCheckedAt).toLocaleString('zh-TW') : '等待首次執行'} · 每小時檢查；自動分工{p!.auto ? '已啟用' : '未啟用'}。最近檢查{' '}
                 {new Date(p!.lastCheck).toLocaleTimeString('zh-TW', {
                   hour: '2-digit',
                   minute: '2-digit',

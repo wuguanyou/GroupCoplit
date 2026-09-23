@@ -1,6 +1,7 @@
 {
   "name": "grouppilot",
-  "main": "vinext/server/fetch-handler",
+  "main": "worker.ts",
+  "triggers": { "crons": ["0 * * * *"] },
   "compatibility_date": "2026-05-15",
   "compatibility_flags": [
     "nodejs_compat"

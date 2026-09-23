@@ -1634,6 +1634,15 @@ legend {
 .file-center {
   padding: 28px;
 }
+.gantt-panel { margin-bottom: 24px; }
+.gantt-scroll { overflow-x: auto; margin-top: 16px; }
+.gantt-table { min-width: 720px; }
+.gantt-row { display: grid; grid-template-columns: 240px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid #e0e7ee; align-items: center; }
+.gantt-row small { display: block; color: #687e85; line-height: 1.6; overflow-wrap: anywhere; }
+.gantt-scale { display: flex; justify-content: space-between; font-size: 12px; }
+.gantt-track { position: relative; min-height: 52px; background: #f2f6f4; border-radius: 6px; }
+.gantt-bar { position: absolute; top: 8px; height: 14px; background: #31856b; border-radius: 5px; }
+.gantt-track span { display: block; padding: 27px 8px 5px; font-size: 12px; color: #344f45; }
 .file-toolbar {
   display: grid;
   grid-template-columns: 1fr 1fr;

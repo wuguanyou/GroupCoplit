@@ -42,6 +42,8 @@ export type Event = {
   kind: 'plan' | 'report' | 'evidence' | 'risk';
 };
 export type Project = {
+  backgroundCheckedAt?: string;
+  backgroundRiskSignature?: string;
   appliedAgentRuns?: string[];
   name: string;
   requirements: string;
