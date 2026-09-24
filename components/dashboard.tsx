@@ -9,6 +9,8 @@ import {
 import { SignOut } from './social-login';
 import { LearningReport } from './learning-report';
 import { ProjectGantt } from './project-gantt';
+import { TeamChat } from './team-chat';
+import { useProjectId } from './project-context';
 import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
@@ -62,6 +64,7 @@ const tabs = [
   ['agent', 'AI 代理組長', Bot],
   ['tasks', '任務與依賴', GitBranch],
   ['team', '團隊與分工', Users],
+  ['chat', '團隊聊天室', Send],
   ['contribution', '貢獻分析', ChartNoAxesCombined],
   ['files', '資料與交付', FileCheck],
   ['activity', '代理紀錄', Activity],
@@ -81,6 +84,7 @@ export default function Dashboard({
   onWorkspace: () => void;
 }) {
   const apiFetch = useProjectFetch();
+  const projectId = useProjectId();
   const [inviteCode, setInviteCode] = useState('');
   const [aiResult, setAIResult] = useState<any>(null);
   const [data, setData] = useState<Snapshot | null>(null),
@@ -384,7 +388,7 @@ export default function Dashboard({
                             ? 'CONTRIBUTION INSIGHTS'
                             : view === 'files'
                               ? 'TEAM FILES'
-                              : 'AGENT ACTIVITY'}
+                              : view === 'chat' ? 'TEAM CHAT' : 'AGENT ACTIVITY'}
                 </p>
                 <h1>
                   {view === 'agent'
@@ -399,7 +403,7 @@ export default function Dashboard({
                             ? '每一份付出，都有跡可循。'
                             : view === 'files'
                               ? '從專案資料，到最後交付。'
-                              : '看見每一次協調的來由。'}
+                              : view === 'chat' ? '一起討論，一起向前。' : '看見每一次協調的來由。'}
                 </h1>
                 <p>
                   {p!.name} <span className="separator">/</span>{' '}
@@ -428,6 +432,7 @@ export default function Dashboard({
                 </button>
               </div>
             </div>
+            {view === 'chat' && <TeamChat key={projectId} userId={data.currentUserId} />}
             {view === 'files' && (
               <FileCenter
                 project={p!}

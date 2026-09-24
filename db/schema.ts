@@ -10,6 +10,15 @@ export const projects = sqliteTable('projects', {
   data: text('data').notNull(),
   revision: integer('revision').notNull().default(0),
 });
+export const chatMessages = sqliteTable('chat_messages', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: text('project_id').notNull(),
+  userId: text('user_id').notNull(),
+  name: text('name').notNull(),
+  body: text('body').notNull(),
+  nonce: text('nonce').notNull(),
+  createdAt: text('created_at').notNull(),
+}, t => [index('idx_chat_project_id').on(t.projectId, t.id), uniqueIndex('idx_chat_nonce').on(t.projectId, t.userId, t.nonce)]);
 export const agentRuns = sqliteTable(
   'agent_runs',
   {
