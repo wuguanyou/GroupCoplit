@@ -337,6 +337,30 @@ nav i {
   right: 22px;
   bottom: 24px;
 }
+@media (min-width: 601px) {
+  .shell > aside {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: #99b5ac #f3f7f6;
+    overscroll-behavior-y: contain;
+  }
+  .shell > aside > * {
+    flex-shrink: 0;
+  }
+  .shell > aside .sidebottom {
+    position: static;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+  .shell > aside .sideproject strong,
+  .shell > aside .sidebottom small {
+    overflow-wrap: anywhere;
+  }
+}
 .mini-pilot {
   display: flex;
   gap: 9px;
