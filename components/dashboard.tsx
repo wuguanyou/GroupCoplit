@@ -245,9 +245,9 @@ export default function Dashboard({
     const t =
       task ??
       p?.tasks.find(
-        (t) => t.status !== 'done' && t.owner === data?.currentUserId,
+        (t) => (t.status === 'todo' || t.status === 'doing') && t.owner === data?.currentUserId,
       );
-    if (t)
+    if (t && t.owner === data?.currentUserId && (t.status === 'todo' || t.status === 'doing'))
       open('report', {
         taskId: t.id,
         memberId: t.owner,
@@ -255,6 +255,7 @@ export default function Dashboard({
         remainingHours: t.hours,
         unavailableUntil: person(t.owner)?.unavailableUntil ?? day(),
       });
+    else setError('目前沒有可回報的任務；請先確認任務分工，待驗收任務需先完成驗收。');
   };
   const evidence = (task?: Task) => {
     const t = task ?? p?.tasks.find((t) => t.status !== 'done') ?? p?.tasks[0];
@@ -742,7 +743,7 @@ export default function Dashboard({
                                 {t.status === 'done' ? '原估' : '剩餘'}
                               </span>
                               <span>難度 {t.difficulty}</span>
-                              <span>預估 {dateLabel(t.due)}</span>
+                              <span>截止 {dateLabel(t.due)}</span>
                             </div>
                             <div className="deps">
                               <GitBranch size={14} />
@@ -988,7 +989,7 @@ export default function Dashboard({
                               {e.kind === 'delivery' ? '成果交付' : '協作支援'}
                             </span>
                             <span>自報 {e.hours} hr</span>
-                            <span>{dateLabel(e.createdAt.slice(0, 10))}</span>
+                            <span>{dateLabel(day(new Date(e.createdAt)))}</span>
                             {e.reviewer && (
                               <span>驗收：{person(e.reviewer)?.name}</span>
                             )}
@@ -1140,7 +1141,7 @@ export default function Dashboard({
                 <span className="muted"> / 每個團隊，都值得被好好協調。</span>
               </span>
               <span>
-                背景巡檢：{p!.backgroundCheckedAt ? new Date(p!.backgroundCheckedAt).toLocaleString('zh-TW') : '等待首次執行'} · 每小時檢查；自動分工{p!.auto ? '已啟用' : '未啟用'}。最近檢查{' '}
+                背景巡檢：{!p!.tasks.length ? '尚無任務，暫不巡檢' : p!.tasks.every(t => t.status === 'done') ? '任務已全部完成' : p!.backgroundCheckedAt ? new Date(p!.backgroundCheckedAt).toLocaleString('zh-TW') : '等待首次執行'} · 每小時檢查；自動分工{p!.auto ? '已啟用' : '未啟用'}。最近檢查{' '}
                 {new Date(p!.lastCheck).toLocaleTimeString('zh-TW', {
                   hour: '2-digit',
                   minute: '2-digit',
@@ -1244,7 +1245,7 @@ export default function Dashboard({
                       >
                         {p.tasks
                           .filter(
-                            (t) => modal === 'evidence' || t.status !== 'done',
+                            (t) => modal === 'evidence' || ((t.status === 'todo' || t.status === 'doing') && t.owner === data.currentUserId),
                           )
                           .map((t) => (
                             <option key={t.id} value={t.id}>
@@ -1385,15 +1386,14 @@ export default function Dashboard({
                     <label>
                       驗收組員
                       <select
-                        value={form.memberId}
+                        disabled
+                        value={data.currentUserId}
                         onChange={(e) => field('memberId', e.target.value)}
                       >
                         {p.members
                           .filter(
                             (m) =>
-                              m.id !==
-                              p.evidence.find((e) => e.id === form.evidenceId)
-                                ?.memberId,
+                              m.id === data.currentUserId,
                           )
                           .map((m) => (
                             <option value={m.id} key={m.id}>

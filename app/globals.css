@@ -84,7 +84,7 @@ main {
   min-width: 0;
   max-width: 1800px;
 }
-header {
+.shell > main > header {
   height: 80px;
   border-bottom: 1px solid #e1e7ed;
   display: flex;
@@ -238,8 +238,12 @@ p {
   .orb {
     display: none;
   }
-  header {
-    height: 60px;
+  .shell > main > header {
+    height: auto;
+    min-height: 60px;
+    padding: 12px 0;
+    flex-wrap: wrap;
+    gap: 12px;
   }
 }
 button:disabled {

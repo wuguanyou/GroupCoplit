@@ -10,6 +10,17 @@ import {
   addDays,
   forecastLabel,
 } from '../lib/project.ts';
+test('Taiwan midnight and calendar arithmetic are consistent on UTC servers', () => {
+  assert.equal(day(new Date('2026-09-30T15:59:59Z')),'2026-09-30');
+  assert.equal(day(new Date('2026-09-30T16:00:00Z')),'2026-10-01');
+  assert.equal(addDays('2026-12-31',1),'2027-01-01');
+  assert.equal(addDays('2028-02-28',1),'2028-02-29');
+});
+test('replanning never moves agreed deadlines or hides overdue tasks', () => {
+  const p=seed();p.tasks.forEach(t=>t.due='2020-01-01');
+  const dates=p.tasks.map(t=>t.due);replan(p);replan(p);
+  assert.deepEqual(p.tasks.map(t=>t.due),dates);
+});
 test('empty and completed projects never advertise today as an estimated completion date', () => {
   const p=seed(); p.tasks=[];
   for(const deadline of ['2026-10-01','2026-12-31']) {

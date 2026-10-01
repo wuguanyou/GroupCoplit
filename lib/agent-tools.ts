@@ -1,5 +1,4 @@
 import {
-  addDays,
   day,
   log,
   ordered,
@@ -144,12 +143,6 @@ export function prepareAction(
       throw new AgentError(
         'AI 分工未改善排程（已計入每次轉交半天緩衝），保留原分工。',
       );
-    for (const slot of after.slots) {
-      p.tasks.find((t) => t.id === slot.taskId)!.due = addDays(
-        today,
-        Math.ceil(slot.end + changes.length * 0.5),
-      );
-    }
     if (!changes.length) changes.push('維持現有分工');
   }
   log(

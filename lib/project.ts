@@ -56,11 +56,12 @@ export type Project = {
   lastCheck: string;
   demo: boolean;
 };
-export const day = (d = new Date()) => d.toISOString().slice(0, 10);
+// Project calendar dates use Taiwan time on both browser and UTC Workers.
+export const day = (d = new Date()) => new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
 export function addDays(date: string, n: number) {
   const d = new Date(date + 'T00:00:00Z');
   d.setUTCDate(d.getUTCDate() + n);
-  return day(d);
+  return d.toISOString().slice(0, 10);
 }
 const diff = (a: string, b: string) =>
   (Date.parse(a + 'T00:00:00Z') - Date.parse(b + 'T00:00:00Z')) / 86400000;
@@ -391,10 +392,7 @@ export function replan(p: Project) {
         ? '目前無法透過現有人力解決所有風險，請調整範圍或期限。'
         : '現有分工仍適合，不需要更動。',
     );
-  for (const s of r.slots) {
-    const t = p.tasks.find((t) => t.id === s.taskId)!;
-    if (Number.isFinite(s.end)) t.due = addDays(day(), Math.ceil(s.end));
-  }
+  // Forecast slots must not silently replace the team's agreed due dates.
   p.lastCheck = new Date().toISOString();
   return r;
 }

@@ -1,17 +1,18 @@
-import { analyze, schedule, log, type Project } from './project.ts';
+import { analyze, schedule, log, day, type Project } from './project.ts';
 
 export function inspectProject(source: Project, at: string): Project | null {
   if (source.demo || !source.tasks.some((t) => t.status !== 'done')) return null;
   if (source.backgroundCheckedAt?.slice(0, 13) === at.slice(0, 13)) return null;
   const p = structuredClone(source);
-  const result = analyze(p, at.slice(0, 10));
+  const today = day(new Date(at));
+  const result = analyze(p, today);
   const signature = JSON.stringify(result.risks.map((r) => [r.title, r.detail]));
   if (signature !== p.backgroundRiskSignature) {
     if (result.risks.length) log(p, '背景巡檢：發現專案風險', result.risks.map((r) => `${r.title}：${r.detail}`).join('\n'), 'risk');
     else if (p.backgroundRiskSignature) log(p, '背景巡檢：風險已解除', '目前沒有偵測到逾期、不可排程或人力受限風險。', 'risk');
   }
   if (p.auto && result.risks.length) {
-    const changes = schedule(p, true, at.slice(0, 10)).changes;
+    const changes = schedule(p, true, today).changes;
     for (const c of changes) {
       log(p, '背景巡檢：調整任務分工', `${p.tasks.find((t) => t.id === c.taskId)?.title} → ${p.members.find((m) => m.id === c.to)?.name}。${c.reason} 原截止日與成果歸屬保留。`, 'plan');
     }

@@ -8,6 +8,7 @@ export function TeamChat({ userId }: { userId: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [body, setBody] = useState('');
   const [error, setError] = useState('');
+  const [pollError, setPollError] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [older, setOlder] = useState(false);
@@ -27,8 +28,8 @@ export function TeamChat({ userId }: { userId: string }) {
         const r = await apiFetch(`/api/chat${newest.current === null ? '' : `?after=${newest.current}`}`, { cache: 'no-store', signal: controller.signal });
         const j = await r.json() as HistoryResponse;
         if (!r.ok) throw Error(j.error);
-        if (active) { merge(j.messages); if(j.messages.length) newest.current=j.messages[j.messages.length-1].id; if(initial) setHasMore(j.hasMore); initial=false; }
-      } catch(e) { if(active) setError(e instanceof Error ? e.message : '訊息更新失敗'); }
+        if (active) { merge(j.messages); if(j.messages.length) newest.current=j.messages[j.messages.length-1].id; if(initial) setHasMore(j.hasMore); initial=false; setPollError(''); }
+      } catch(e) { if(active) setPollError(e instanceof Error ? e.message : '訊息更新失敗'); }
       finally { running=false; if(active) setLoading(false); }
     }
     void refresh();
@@ -61,6 +62,7 @@ export function TeamChat({ userId }: { userId: string }) {
   return <section className="panel team-chat">
     <div className="panel-title"><div><h2>團隊聊天室</h2><p>與專案成員討論，訊息每 5 秒更新。訊息會保存供團隊查閱。</p></div></div>
     {error && <p role="alert" className="chat-error">{error}</p>}
+    {pollError && <p role="alert" className="chat-error">{pollError}，系統會自動重試。</p>}
     {hasMore && <button className="btn" onClick={loadOlder} disabled={older}>{older ? '載入中…' : '載入較早訊息'}</button>}
     <div className="chat-messages" ref={list} tabIndex={0} aria-label="團隊訊息" onScroll={() => { const el=list.current; if(el) setFollowing(el.scrollHeight-el.scrollTop-el.clientHeight<60); }}>
       {loading ? <p role="status">載入訊息中…</p> : !messages.length ? <p className="chat-empty">還沒有訊息，和團隊打個招呼吧！</p> : null}

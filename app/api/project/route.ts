@@ -104,7 +104,7 @@ export async function POST(request: Request) {
               (e) =>
                 e.kind === 'risk' &&
                 e.detail === signature &&
-                e.at.slice(0, 10) === day(),
+                day(new Date(e.at)) === day(),
             )
           )
             log(p, '偵測到需要處理的風險', signature, 'risk');
@@ -150,6 +150,7 @@ export async function POST(request: Request) {
         const t = task();
         if (t.owner !== m.id) throw Error('請選擇任務目前的負責人');
         if (t.status === 'done') throw Error('已完成任務不能修改剩餘工時');
+        if (t.status === 'review') throw Error('任務正在驗收，退回後才能修改進度');
         const note = text(b.note);
         t.hours = num(b.remainingHours, 0.5, 80);
         m.unavailableUntil = date(b.unavailableUntil);

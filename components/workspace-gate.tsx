@@ -11,6 +11,7 @@ import {
 import { ProjectContext } from './project-context';
 import { SocialLogin, SignOut } from './social-login';
 import Dashboard from './dashboard';
+import { day } from '../lib/project';
 type Session = {
   user: { id: string; name: string } | null;
   projects: { id: string; name: string; role: string }[];
@@ -203,7 +204,7 @@ export function WorkspaceGate() {
                       type="date"
                       name="deadline"
                       required
-                      min={new Date().toISOString().slice(0, 10)}
+                      min={day()}
                     />
                   </label>
                 </>
