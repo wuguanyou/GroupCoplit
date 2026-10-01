@@ -559,6 +559,7 @@ export default function Dashboard({
                     </article>
                   ))}
                 </section>
+                <ProjectGantt project={data.project} />
                 <div className="columns">
                   <section className="panel">
                     <div className="section-title">

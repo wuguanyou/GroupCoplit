@@ -48,6 +48,10 @@ test('browser audit of all tabs, chat, export, project selection and mobile layo
     const cookie=cookies.alice.split('=');await context.addCookies([{name:cookie[0],value:cookie.slice(1).join('='),url:'http://127.0.0.1:3014',httpOnly:true}]);
     await page.goto('http://127.0.0.1:3014');await page.getByRole('heading',{name:'選擇要進入的專案'}).waitFor();
     await page.getByRole('button',{name:/UI 驗證專案/}).click();await page.getByRole('heading',{name:'讓團隊專注，把協調交給我。'}).waitFor();
+    await page.getByRole('heading',{name:'預估進度甘特圖'}).waitFor();
+    await page.locator('.gantt-task-info').filter({hasText:'UI 驗證任務'}).waitFor();
+    await page.locator('.gantt-task-info summary').first().click();
+    await page.screenshot({path:'work/audit-overview-gantt.png',fullPage:true});
     for(const name of ['專案總覽','AI 代理組長','任務與依賴','團隊與分工','團隊聊天室','貢獻分析','資料與交付','代理紀錄']){
       await page.locator('nav').getByRole('button',{name,exact:true}).click();await page.waitForTimeout(200);console.log('UI tab passed:',name);
     }

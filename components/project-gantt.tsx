@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { analyze, addDays, day, forecastLabel, type Project } from '../lib/project';
+const statuses = { todo: '待開始', doing: '進行中', review: '待驗收', done: '已完成' };
 
 export function ProjectGantt({ project }: { project: Project }) {
   const [owner, setOwner] = useState('');
@@ -14,14 +15,14 @@ export function ProjectGantt({ project }: { project: Project }) {
       <label>負責人 <select value={owner} onChange={(e) => setOwner(e.target.value)}><option value="">全部組員</option>{project.members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
     </div>
     <p>專案截止：{project.deadline} · 預估完成：{forecastLabel(project, plan.finishDate)}</p>
-    <div className="gantt-scroll" tabIndex={0} role="region" aria-label="任務甘特圖，可水平捲動">
+    <div className="gantt-scroll" tabIndex={0} role="region" aria-label="任務甘特圖，可上下與水平捲動">
       <div className="gantt-table">
         <div className="gantt-row"><strong>任務／依賴</strong><div className="gantt-scale"><span>{today}</span><span>{addDays(today, Math.ceil(days / 2))}</span><span>{addDays(today, days)}</span></div></div>
         {visible.map((t) => {
           const slot = finite.find((s) => s.taskId === t.id);
           const member = project.members.find((m) => m.id === t.owner);
           const label = t.status === 'done' ? '已完成' : !slot ? '無法排程：請確認技能、可用時間及前置任務' : `${addDays(today, Math.floor(slot.start))} ～ ${addDays(today, Math.ceil(slot.end))}`;
-          return <div className="gantt-row" key={t.id}><div><strong>{t.title}</strong><small>{member?.name ?? '未分配'} · 截止 {t.due}</small><small>前置：{t.deps.map((id) => project.tasks.find((x) => x.id === id)?.title ?? '未知任務').join('、') || '無'}</small></div>
+          return <div className="gantt-row" key={t.id}><div className="gantt-task-info"><strong>{t.title}</strong><small>{statuses[t.status]} · 剩餘 {t.status === 'done' ? 0 : t.hours} 小時</small><small>{member?.name ?? '未分配'} · 截止 {t.due}</small><small>前置：{t.deps.map((id) => project.tasks.find((x) => x.id === id)?.title ?? '未知任務').join('、') || '無'}</small><details><summary>驗收標準</summary><p>{t.criteria || '尚未填寫'}</p></details></div>
             <div className="gantt-track" aria-label={`${t.title}：${label}`}>
               {slot && t.status !== 'done' ? <div className="gantt-bar" title={`${t.title}：${label}`} style={{left:`${slot.start / days * 100}%`,width:`${Math.max(.4, (slot.end-slot.start) / days * 100)}%`}} /> : null}
               <span>{label}</span>
