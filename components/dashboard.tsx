@@ -39,6 +39,7 @@ import {
   type Task,
   analyze,
   contributions,
+  forecastLabel,
   skillNames,
   day,
 } from '../lib/project';
@@ -524,8 +525,8 @@ export default function Dashboard({
                       '預估完成日期',
                       data.analysis.finishDate
                         ? dateLabel(data.analysis.finishDate)
-                        : '待協調',
-                      '依每日可用工時估算',
+                        : forecastLabel(p!, null),
+                      p!.tasks.length ? '依剩餘工時、可用時間與依賴估算' : '建立任務後才可估算，截止日為目標日期',
                       Clock,
                     ],
                     [

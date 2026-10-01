@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { analyze, addDays, day, type Project } from '../lib/project';
+import { analyze, addDays, day, forecastLabel, type Project } from '../lib/project';
 
 export function ProjectGantt({ project }: { project: Project }) {
   const [owner, setOwner] = useState('');
@@ -13,7 +13,7 @@ export function ProjectGantt({ project }: { project: Project }) {
     <div className="panel-title"><div><h2>預估進度甘特圖</h2><p>從今天起，依剩餘工時、每日可用時間與前置任務計算。長條是預估排程，不是實際工作紀錄。</p></div>
       <label>負責人 <select value={owner} onChange={(e) => setOwner(e.target.value)}><option value="">全部組員</option>{project.members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
     </div>
-    <p>專案截止：{project.deadline} · 預估完成：{plan.finishDate ?? '目前無法完成排程'}</p>
+    <p>專案截止：{project.deadline} · 預估完成：{forecastLabel(project, plan.finishDate)}</p>
     <div className="gantt-scroll" tabIndex={0} role="region" aria-label="任務甘特圖，可水平捲動">
       <div className="gantt-table">
         <div className="gantt-row"><strong>任務／依賴</strong><div className="gantt-scale"><span>{today}</span><span>{addDays(today, Math.ceil(days / 2))}</span><span>{addDays(today, days)}</span></div></div>

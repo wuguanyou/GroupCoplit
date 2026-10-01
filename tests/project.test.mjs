@@ -8,7 +8,30 @@ import {
   ordered,
   day,
   addDays,
+  forecastLabel,
 } from '../lib/project.ts';
+test('empty and completed projects never advertise today as an estimated completion date', () => {
+  const p=seed(); p.tasks=[];
+  for(const deadline of ['2026-10-01','2026-12-31']) {
+    p.deadline=deadline;
+    assert.equal(schedule(p,false,'2026-10-01').finishDate,null);
+    assert.equal(forecastLabel(p,null),'尚無任務');
+  }
+  p.tasks=seed().tasks.map(t=>({...t,status:'done'}));
+  assert.equal(schedule(p,false,'2026-10-01').finishDate,null);
+  assert.equal(forecastLabel(p,null),'已全部完成');
+});
+test('forecast responds to remaining work, daily capacity, availability and dependencies', () => {
+  const p=seed();p.members=[{...p.members[0],dailyHours:2,unavailableUntil:'2026-10-01'}];
+  p.tasks=[{...p.tasks[0],status:'todo',hours:4,owner:p.members[0].id,deps:[]}];
+  const finish=()=>schedule(p,false,'2026-10-01').finishDate;
+  assert.equal(finish(),'2026-10-03');
+  p.tasks[0].hours=8;assert.equal(finish(),'2026-10-05');
+  p.members[0].dailyHours=4;assert.equal(finish(),'2026-10-03');
+  p.members[0].unavailableUntil='2026-10-06';assert.equal(finish(),'2026-10-08');
+  p.tasks.push({...p.tasks[0],id:'next',hours:4,deps:[p.tasks[0].id]});
+  assert.equal(finish(),'2026-10-09');
+});
 test('a blocked member triggers a skill-compatible handoff; completed authors stay intact', () => {
   const p = seed();
   p.members[2].unavailableUntil = addDays(day(), 7);

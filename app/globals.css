@@ -1659,6 +1659,16 @@ legend {
   padding: 28px;
 }
 .gantt-panel { margin-bottom: 24px; }
+.project-selection-page { display: block; min-height: 100dvh; background: #f5f7fa; }
+.project-selection-page .entry-story { display: none; }
+.project-selection-page .entry-form { max-width: 980px; margin: 0 auto; padding: 48px 24px; }
+.project-selection-page .workspace-setup { width: 100%; max-width: none; }
+.project-selection-page .project-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); gap: 14px; max-height: 420px; overflow-y: auto; padding: 4px; }
+.project-selection-page .project-choice { min-width: 0; width: 100%; background: #fff; }
+.project-selection-page .project-choice span { min-width: 0; overflow-wrap: anywhere; }
+.project-selection-page .project-choice svg { flex-shrink: 0; }
+.project-selection-page form { max-width: 620px; }
+.project-empty { padding: 20px; background: #fff; border: 1px solid #dce6e1; border-radius: 12px; }
 .team-chat { padding: 24px; }
 .chat-messages { height: 440px; overflow-y: auto; padding: 16px 4px; display: flex; flex-direction: column; gap: 14px; }
 .chat-message { max-width: 85%; align-self: flex-start; padding: 12px 16px; border-radius: 12px; background: #f1f5f4; min-width: 0; }

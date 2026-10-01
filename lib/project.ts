@@ -293,10 +293,15 @@ export function schedule(p: Project, reassign = false, today = day()) {
     changes,
     warnings,
     duration,
-    finishDate: Number.isFinite(duration)
+    finishDate: slots.length > 0 && Number.isFinite(duration)
       ? addDays(today, Math.ceil(duration))
       : null,
   };
+}
+export function forecastLabel(p: Project, finishDate: string | null) {
+  if (!p.tasks.length) return '尚無任務';
+  if (p.tasks.every(t => t.status === 'done')) return '已全部完成';
+  return finishDate ?? '待協調';
 }
 export function analyze(p: Project, today = day()) {
   const result = schedule(p, false, today);

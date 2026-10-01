@@ -18,7 +18,7 @@ type Session = {
 };
 export function WorkspaceGate() {
   const [session, setSession] = useState<Session | null>(null),
-    [chooser, setChooser] = useState(false),
+    [chooser, setChooser] = useState(true),
     [error, setError] = useState(''),
     [busy, setBusy] = useState(false),
     [mode, setMode] = useState('create');
@@ -55,12 +55,12 @@ export function WorkspaceGate() {
       <ProjectContext.Provider value={session.selected}>
         <Dashboard
           key={session.selected}
-          onWorkspace={() => setChooser(true)}
+          onWorkspace={() => { setChooser(true); load().catch((e) => setError(e.message)); }}
         />
       </ProjectContext.Provider>
     );
   return (
-    <div className="entry-page">
+    <div className={`entry-page${session?.user ? ' project-selection-page' : ''}`}>
       <section className="entry-story">
         <a href="/" className="brand">
           ◈ GroupPilot
@@ -119,7 +119,9 @@ export function WorkspaceGate() {
         ) : (
           <div className="workspace-setup">
             <p className="eyebrow">{session.user.name}</p>
-            <h2>選擇你的工作空間</h2>
+            <h2>選擇要進入的專案</h2>
+            <p>歡迎回來！選擇專案後，即可查看任務、檔案與團隊聊天室。</p>
+            {session.projects.length === 0 && <p className="project-empty">你還沒有加入任何專案。可以在下方建立新專案，或使用邀請碼加入團隊。</p>}
             {session.projects.length > 0 && (
               <div className="project-choices">
                 {session.projects.map((p) => (
@@ -134,6 +136,7 @@ export function WorkspaceGate() {
                       <b>{p.name}</b>
                       <small>
                         {p.role === 'owner' ? '專案建立者' : '團隊成員'}
+                        {session.selected === p.id ? ' · 上次選擇' : ''}
                       </small>
                     </span>
                     <ArrowRight size={16} />
