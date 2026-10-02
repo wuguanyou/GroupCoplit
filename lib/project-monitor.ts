@@ -1,4 +1,5 @@
 import { analyze, schedule, log, day, type Project } from './project.ts';
+import { addDeadlineReminders } from './reminders.ts';
 
 export function inspectProject(source: Project, at: string): Project | null {
   if (source.demo || !source.tasks.some((t) => t.status !== 'done')) return null;
@@ -18,6 +19,7 @@ export function inspectProject(source: Project, at: string): Project | null {
     }
   }
   p.backgroundRiskSignature = signature;
+  addDeadlineReminders(p, at);
   p.backgroundCheckedAt = at;
   p.lastCheck = at;
   return p;

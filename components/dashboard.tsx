@@ -11,6 +11,8 @@ import { LearningReport } from './learning-report';
 import { ProjectGantt } from './project-gantt';
 import { TeamChat } from './team-chat';
 import { useProjectId } from './project-context';
+import { NotificationCenter, TaskDiscussion } from './team-collaboration';
+import { Bell } from 'lucide-react';
 import { AgentPanel } from '../components/agent-panel';
 import {
   LayoutDashboard,
@@ -66,6 +68,7 @@ const tabs = [
   ['tasks', '任務與依賴', GitBranch],
   ['team', '團隊與分工', Users],
   ['chat', '團隊聊天室', Send],
+  ['notifications', '通知中心', Bell],
   ['contribution', '貢獻分析', ChartNoAxesCombined],
   ['files', '資料與交付', FileCheck],
   ['activity', '代理紀錄', Activity],
@@ -307,6 +310,7 @@ export default function Dashboard({
               {id === 'contribution' && pending.length > 0 && (
                 <i>{pending.length}</i>
               )}
+              {id === 'notifications' && (p?.notifications??[]).some(n=>n.memberId===data?.currentUserId&&!n.readAt) && <i>{(p?.notifications??[]).filter(n=>n.memberId===data?.currentUserId&&!n.readAt).length}</i>}
             </button>
           ))}
         </nav>
@@ -390,7 +394,7 @@ export default function Dashboard({
                             ? 'CONTRIBUTION INSIGHTS'
                             : view === 'files'
                               ? 'TEAM FILES'
-                              : view === 'chat' ? 'TEAM CHAT' : 'AGENT ACTIVITY'}
+                              : view === 'chat' ? 'TEAM CHAT' : view === 'notifications' ? 'NOTIFICATIONS' : 'AGENT ACTIVITY'}
                 </p>
                 <h1>
                   {view === 'agent'
@@ -405,7 +409,7 @@ export default function Dashboard({
                             ? '每一份付出，都有跡可循。'
                             : view === 'files'
                               ? '從專案資料，到最後交付。'
-                              : view === 'chat' ? '一起討論，一起向前。' : '看見每一次協調的來由。'}
+                              : view === 'chat' ? '一起討論，一起向前。' : view === 'notifications' ? '需要你留意的事，都在這裡。' : '看見每一次協調的來由。'}
                 </h1>
                 <p>
                   {p!.name} <span className="separator">/</span>{' '}
@@ -434,7 +438,8 @@ export default function Dashboard({
                 </button>
               </div>
             </div>
-            {view === 'chat' && <TeamChat key={projectId} userId={data.currentUserId} />}
+            {view === 'chat' && <TeamChat key={projectId} userId={data.currentUserId} project={p!} onReport={report} onSubmit={evidence} />}
+            {view === 'notifications' && <NotificationCenter project={p!} userId={data.currentUserId} role={data.role} busy={busy} perform={perform} onReport={report} onSubmit={evidence} />}
             {view === 'files' && (
               <FileCenter
                 project={p!}
@@ -1055,6 +1060,7 @@ export default function Dashboard({
                 </section>
               </>
             )}
+            {view === 'tasks' && <TaskDiscussion key={projectId} project={p!} userId={data.currentUserId} role={data.role} busy={busy} perform={perform} onReport={report} onSubmit={evidence} />}
             {view === 'activity' && (
               <section className="panel">
                 <div className="section-title">

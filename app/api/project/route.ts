@@ -2,6 +2,7 @@ import { access, owner, apiError, AccessError } from '../../../lib/access';
 import { validateAttachments } from '../../../db/files';
 import { readProject, saveProject } from '../../../db/store';
 import { aiReady, aiStatus } from '../../../lib/ai';
+import { addDeadlineReminders } from '../../../lib/reminders';
 import {
   analyze,
   contributions,
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
       throw Error('請提供有效操作物件');
     const b = input as Record<string, unknown>;
     const identity = await access();
-    if (['project', 'task', 'auto', 'replan'].includes(String(b.action)))
+    if (['project', 'task', 'auto', 'replan', 'reminders', 'taskDeadline'].includes(String(b.action)))
       owner(identity.role);
     if (
       ['report', 'evidence', 'review'].includes(String(b.action)) &&
@@ -89,6 +90,35 @@ export async function POST(request: Request) {
       return t;
     };
     switch (b.action) {
+      case 'reminders':
+        if(typeof b.enabled!=='boolean') throw Error('提醒設定無效');
+        p.remindersEnabled=b.enabled;
+        log(p,'到期提醒設定',b.enabled?'已啟用站內與聊天室提醒；每天 09:00 至 21:00 之間檢查，同任務同人每天最多一次。':'已停用到期提醒');
+        addDeadlineReminders(p,new Date().toISOString());
+        break;
+      case 'taskDeadline':
+        task().due=date(b.due);
+        log(p,'任務截止日更新',`${task().title}：${task().due}`);
+        break;
+      case 'notificationRead': {
+        const ids=Array.isArray(b.ids)?b.ids:[];
+        for(const item of p.notifications ?? []) if(item.memberId===identity.user.userId && ids.includes(item.id)) item.readAt=new Date().toISOString();
+        break;
+      }
+      case 'comment': {
+        const t=task();
+        const id=text(b.requestId,80);
+        if((p.taskComments??[]).some(c=>c.id===id && c.memberId===identity.user.userId)) break;
+        const body=text(b.body,2000);
+        const at=new Date().toISOString();
+        const mentions=Array.isArray(b.mentions)?[...new Set(b.mentions)]:[];
+        if(mentions.some(id=>!p.members.some(m=>m.id===id)))throw Error('提及的成員無效');
+        p.taskComments=[...(p.taskComments??[]),{id,taskId:t.id,memberId:identity.user.userId,body,createdAt:at}].slice(-1000);
+        for(const memberId of mentions) if(memberId!==identity.user.userId) {
+          p.notifications=[...(p.notifications??[]),{id:`mention:${id}:${identity.user.userId}:${memberId}`,taskId:t.id,memberId:memberId as string,kind:'mention' as const,body:`${p.members.find(m=>m.id===identity.user.userId)?.name??'組員'} 在「${t.title}」留言提及你：${body}`,createdAt:at}].slice(-500);
+        }
+        break;
+      }
       case 'replan':
         replan(p);
         break;
@@ -97,6 +127,7 @@ export async function POST(request: Request) {
           return Response.json({ ok: true });
         const r = analyze(p);
         p.lastCheck = new Date().toISOString();
+        addDeadlineReminders(p,p.lastCheck);
         if (r.risks.length) {
           const signature = r.risks.map((x) => x.title).join('；');
           if (

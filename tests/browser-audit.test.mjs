@@ -52,9 +52,12 @@ test('browser audit of all tabs, chat, export, project selection and mobile layo
     await page.locator('.gantt-task-info').filter({hasText:'UI 驗證任務'}).waitFor();
     await page.locator('.gantt-task-info summary').first().click();
     await page.screenshot({path:'work/audit-overview-gantt.png',fullPage:true});
-    for(const name of ['專案總覽','AI 代理組長','任務與依賴','團隊與分工','團隊聊天室','貢獻分析','資料與交付','代理紀錄']){
+    for(const name of ['專案總覽','AI 代理組長','任務與依賴','團隊與分工','團隊聊天室','通知中心','貢獻分析','資料與交付','代理紀錄']){
       await page.locator('nav').getByRole('button',{name,exact:true}).click();await page.waitForTimeout(200);console.log('UI tab passed:',name);
     }
+    await page.locator('nav').getByRole('button',{name:'任務與依賴',exact:true}).click();
+    await page.getByLabel('任務留言',{exact:true}).fill('瀏覽器任務留言驗證');await page.getByRole('button',{name:'送出留言',exact:true}).click();await page.locator('.collaboration-item').filter({hasText:'瀏覽器任務留言驗證'}).waitFor();
+    await page.locator('nav').getByRole('button',{name:'通知中心',exact:true}).click();await page.getByRole('heading',{name:'通知與到期提醒'}).waitFor();
     await page.locator('nav').getByRole('button',{name:'團隊聊天室',exact:true}).click();await page.getByLabel('輸入訊息').fill('瀏覽器驗證訊息');await page.getByRole('button',{name:'傳送訊息',exact:true}).click();await page.locator('.chat-message').filter({hasText:'瀏覽器驗證訊息'}).waitFor();
     await page.screenshot({path:'work/audit-chat-desktop.png',fullPage:true});
     await page.locator('nav').getByRole('button',{name:'貢獻分析',exact:true}).click();const downloaded=page.waitForEvent('download');await page.getByRole('button',{name:'下載學習報告'}).click();assert.match((await downloaded).suggestedFilename(),/\.md$/);

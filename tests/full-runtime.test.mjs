@@ -71,6 +71,16 @@ test('full built Worker workflow with isolated D1, R2 and real signed sessions',
   await t.test('chat persistence, retries and member reads',async()=>{
    const body={body:'Synthetic team message',nonce:randomUUID()};assert.equal((await call('/api/chat',{body})).r.status,200);await call('/api/chat',{body});assert.equal((await call('/api/chat',{user:'bob'})).j.messages.length,1);
   });
+  await t.test('task comments, mention notifications, deadline permissions and personal read receipts',async()=>{
+   assert.equal((await mutate({action:'taskDeadline',taskId:secondTask,due:'2026-10-02'},'bob')).r.status,403);
+   assert.equal((await mutate({action:'taskDeadline',taskId:secondTask,due:'2026-10-02'})).r.status,200);
+   const requestId=randomUUID();const comment={action:'comment',taskId:secondTask,body:'Please review',requestId,mentions:['bob']};
+   assert.equal((await mutate(comment)).r.status,200);await mutate(comment);
+   let p=(await call('/api/project')).j.project;assert.equal(p.taskComments.length,1);assert.equal(p.notifications.filter(n=>n.kind==='mention').length,1);
+   const id=p.notifications[0].id;await mutate({action:'notificationRead',ids:[id]});assert.equal((await call('/api/project')).j.project.notifications[0].readAt,undefined);
+   await mutate({action:'notificationRead',ids:[id]},'bob');assert.ok((await call('/api/project')).j.project.notifications[0].readAt);
+   assert.equal((await mutate({action:'reminders',enabled:true},'bob')).r.status,403);assert.equal((await mutate({action:'reminders',enabled:true})).r.status,200);
+  });
   await t.test('background scheduled event persists once and preserves deadlines',async()=>{
    const before=(await call('/api/project')).j;
    const worker=await mf.getWorker();const event={scheduledTime:new Date('2026-10-02T00:00:00Z').getTime(),cron:'0 * * * *'};
@@ -88,4 +98,3 @@ test('full built Worker workflow with isolated D1, R2 and real signed sessions',
   });
  }finally{await mf.dispose();}
 });
-

@@ -2,8 +2,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useProjectFetch } from './project-context';
 import type { ChatMessage } from '../lib/chat';
+import type {Project,Task} from '../lib/project';
 type HistoryResponse = { messages: ChatMessage[]; hasMore: boolean; error?: string };
-export function TeamChat({ userId }: { userId: string }) {
+export function TeamChat({ userId, project, onReport, onSubmit }: { userId: string; project:Project; onReport:(t:Task)=>void; onSubmit:(t:Task)=>void }) {
   const apiFetch = useProjectFetch();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [body, setBody] = useState('');
@@ -61,6 +62,8 @@ export function TeamChat({ userId }: { userId: string }) {
   }
   return <section className="panel team-chat">
     <div className="panel-title"><div><h2>團隊聊天室</h2><p>與專案成員討論，訊息每 5 秒更新。訊息會保存供團隊查閱。</p></div></div>
+    <details className="chat-reminders"><summary>組長到期提醒（{(project.notifications??[]).filter(n=>n.kind==='reminder').length}）</summary><p>這裡顯示團隊已產生的提醒；回報後以任務最新狀態為準。</p>{(project.notifications??[]).filter(n=>n.kind==='reminder').slice(-10).reverse().map(n=>{const task=project.tasks.find(t=>t.id===n.taskId);return <article className="collaboration-item" key={n.id}><small>{new Date(n.createdAt).toLocaleString('zh-TW')}</small><p>{n.body}</p>{task&&task.owner===userId&&['todo','doing'].includes(task.status)&&<div className="actions"><button className="btn" onClick={()=>onReport(task)}>回報進度</button><button className="btn" onClick={()=>onSubmit(task)}>提交成果</button></div>}</article>;})}</details>
+    <div className="actions"><label>快速回報任務 <select aria-label="快速回報任務" defaultValue="" onChange={e=>{const task=project.tasks.find(t=>t.id===e.target.value);if(task)onReport(task);e.target.value='';}}><option value="">選擇自己負責的任務</option>{project.tasks.filter(t=>t.owner===userId&&['todo','doing'].includes(t.status)).map(t=><option key={t.id} value={t.id}>{t.title}</option>)}</select></label></div>
     {error && <p role="alert" className="chat-error">{error}</p>}
     {pollError && <p role="alert" className="chat-error">{pollError}，系統會自動重試。</p>}
     {hasMore && <button className="btn" onClick={loadOlder} disabled={older}>{older ? '載入中…' : '載入較早訊息'}</button>}

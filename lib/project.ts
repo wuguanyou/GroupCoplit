@@ -42,6 +42,9 @@ export type Event = {
   kind: 'plan' | 'report' | 'evidence' | 'risk';
 };
 export type Project = {
+  remindersEnabled?: boolean;
+  notifications?: { id: string; taskId: string; memberId: string; body: string; createdAt: string; readAt?: string; kind: 'reminder' | 'mention' }[];
+  taskComments?: { id: string; taskId: string; memberId: string; body: string; createdAt: string }[];
   backgroundCheckedAt?: string;
   backgroundRiskSignature?: string;
   appliedAgentRuns?: string[];
